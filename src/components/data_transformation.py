@@ -35,7 +35,7 @@ class DataTransformation:
             num_pipeline = Pipeline(
                 steps = [
                     ('imputer',SimpleImputer(strategy= "median")),
-                    ('scaler',StandardScaler())
+                    ('scaler',StandardScaler(with_mean= False))
 
                 ]
             )
@@ -45,8 +45,8 @@ class DataTransformation:
             cat_pipeline = Pipeline(
                 steps = [
                     ('imputer',SimpleImputer(strategy= "most_frequent")),
-                    ('one_hot_encoder',OneHotEncoder()),
-                    ('scaler',StandardScaler())
+                    ('one_hot_encoder',OneHotEncoder(handle_unknown='ignore', sparse_output=True)),
+                    ('scaler',StandardScaler(with_mean = False))
                 ]
             )
     
@@ -54,7 +54,7 @@ class DataTransformation:
 
             preprocessor = ColumnTransformer(
                 [
-                    ('num_pipeline',num_pipeline,numerical_columns)
+                    ('num_pipeline',num_pipeline,numerical_columns),
                     ('cat_pipeline',cat_pipeline,categorical_columns)
                 ]
             )
@@ -80,10 +80,10 @@ class DataTransformation:
             numerical_columns = ["writing_score","reading_score"]
 
             input_feature_train_df = train_df.drop(columns = [target_column_name],axis = 1)
-            target_feature_train_df = train_df['target_column_name']
+            target_feature_train_df = train_df[target_column_name]
 
             input_feature_test_df = test_df.drop(columns = [target_column_name],axis = 1)
-            target_feature_test_df = test_df['target_column_name']
+            target_feature_test_df = test_df[target_column_name]
 
             logging.info("Applying preprocessing obj on train and test dataframes")
 

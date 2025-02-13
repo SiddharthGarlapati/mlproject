@@ -33,28 +33,28 @@ class ModelTrainer:
             logging.info("splitting training and test input data")
             x_train,y_train,x_test,y_test = (
                 train_array[:,:-1],
-                train_array[-1],
+                train_array[:,-1],
                 test_array[:,:-1],
-                test_array[-1]
-                                             )
+                test_array[:,-1]
+            )
             
             models = {
                 "Random Forest": RandomForestRegressor(),
                 "Decision Tree": DecisionTreeRegressor(),
                 "Gradient Boosting": GradientBoostingRegressor(),
                 "Linear Regression": LinearRegression(),
-                "k-Neighbors Classifier": KNeighborsRegressor(),
+                "k-Neighbors Regressor": KNeighborsRegressor(),
                 "XGBRegressor": XGBRegressor(),
-                "CatBoosting Classifier": CatBoostRegressor(),
+                "CatBoosting Regressor": CatBoostRegressor(),
                 "AdaBoost Regressor": AdaBoostRegressor(), 
             }
 
             params = {
-                "Decision Tree": {
-                    'criterion':['squared_error','friedman_mse','absolute_error','poisson']
-                },
                 "Random Forest": {
                     'n_estimators': [8,16,32,64,128,256]
+                },
+                "Decision Tree": {
+                    'criterion':['squared_error','friedman_mse','absolute_error','poisson']
                 },
                 "Gradient Boosting": {
                     'learning_rate': [.1,.01,0.05,.001],
@@ -62,7 +62,7 @@ class ModelTrainer:
                     'n_estimators': [8,16,32,64,128,256]
                 },
                 "Linear Regression": {},
-                "k-Neighbors Classifier": {
+                "k-Neighbors Regressor": {
                     'n_neighbors':[5,7,9,11]
                 },
                 "XGBRegressor": {
@@ -82,7 +82,7 @@ class ModelTrainer:
 
             }
 
-            model_report:dict = evaluate_model(x_train,y_train,x_test,y_test,models,params)
+            model_report:dict = evaluate_model(x_train = x_train,y_train = y_train,x_test = x_test,y_test = y_test,models = models,params = params)
 
             best_model_score = max(sorted(model_report.values()))
 
@@ -90,7 +90,7 @@ class ModelTrainer:
             
             best_model = models[best_model_name]
 
-            if best_model < 0.6:
+            if best_model_score < 0.6:
                 raise CustomException("No best model found",sys)
             
             logging.info("Best model found on train and test dataset")
@@ -99,6 +99,8 @@ class ModelTrainer:
                 file_path= self.model_trainer_config.trained_model_file_path,
                 obj = best_model
             )
+
+            return best_model_score
 
 
 
